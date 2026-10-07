@@ -33,7 +33,7 @@ export const initialProducts = [
    },
    {
       id: 3,
-      name: "New Era 59FIFTY Los Angeles Dodgers Matte Black",
+      name: "New Era 59FIFTY LA Dodgers Matte Black",
       slug: "new-era-59fifty-la-dodgers-matte-black",
       price: 899000,
       stock: 14,
