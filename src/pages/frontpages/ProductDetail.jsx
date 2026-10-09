@@ -11,8 +11,21 @@ export default function ProductDetail() {
    const location = useLocation();
    const { products } = useProducts();
 
-   // state adalah objek produk yang dikirim dari Link, jika tidak ada cari dari data produk context
-   const p = location.state || products.find(prod => prod.slug === id || prod.id.toString() === id);
+   // state adalah objek produk yang dikirim dari Link, jika refresh cari dari data produk context
+   const decodedId = id ? decodeURIComponent(id).toLowerCase().trim() : "";
+   const p =
+      location.state ||
+      products.find((prod) => {
+         if (!prod) return false;
+         const prodSlug = (prod.slug || "").toLowerCase().trim();
+         const prodSlugNormalized = prodSlug.replace(/[^a-z0-9]+/g, "-");
+         const paramSlugNormalized = decodedId.replace(/[^a-z0-9]+/g, "-");
+         return (
+            prodSlug === decodedId ||
+            prodSlugNormalized === paramSlugNormalized ||
+            prod.id?.toString() === id
+         );
+      });
 
    const { addToCart } = useCart();
 
