@@ -1,22 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { products } from "../../utils/data";
+import { useProducts } from "../../utils/ProductContext";
 import { useCart } from "../../utils/CartContext";
 
 export default function ProductDetail() {
    /* Mengambil ID/slug produk dari URL */
    const { id } = useParams();
 
-   // Mengambil state yang dikirim dari Link
+   // Mengambil state yang dikirim dari Link atau dari ProductContext
    const location = useLocation();
+   const { products } = useProducts();
 
-   // state adalah objek produk yang dikirim dari Link, jika tidak ada cari dari data dummy
+   // state adalah objek produk yang dikirim dari Link, jika tidak ada cari dari data produk context
    const p = location.state || products.find(prod => prod.slug === id || prod.id.toString() === id);
 
    const { addToCart } = useCart();
 
+   // State untuk rating dan review dengan localStorage agar review tidak hilang saat refresh
+   const [rating, setRating] = useState(0);
+   const [review, setReview] = useState("");
+   const [reviews, setReviews] = useState(() => {
+      if (!p?.id) return [];
+      try {
+         const saved = localStorage.getItem(`alungstore_reviews_${p.id}`);
+         if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) return parsed;
+         }
+      } catch (err) {
+         console.error("Gagal membaca ulasan dari localStorage:", err);
+      }
+      return [];
+   });
+
+   // Sinkronisasi ulasan produk ke localStorage
+   useEffect(() => {
+      if (!p?.id) return;
+      try {
+         localStorage.setItem(`alungstore_reviews_${p.id}`, JSON.stringify(reviews));
+      } catch (err) {
+         console.error("Gagal menyimpan ulasan ke localStorage:", err);
+      }
+   }, [reviews, p?.id]);
+
    if (!p) {
-      return <div className="p-6">Produk tidak ditemukan.</div>;
+      return (
+         <div className="p-8 text-center">
+            <h2 className="text-xl font-bold text-gray-800 mb-2">Produk Tidak Ditemukan</h2>
+            <p className="text-gray-500">Produk yang Anda cari tidak tersedia atau telah dihapus.</p>
+         </div>
+      );
    }
 
    const formatPrice = (price) => {
@@ -26,11 +59,6 @@ export default function ProductDetail() {
    };
 
    const imgSrc = p.img?.startsWith("/") ? p.img : `/${p.img}`;
-
-   // State untuk rating dan review
-   const [rating, setRating] = useState(0);
-   const [review, setReview] = useState("");
-   const [reviews, setReviews] = useState([]);
 
    // Handle submit review
    const handleSubmit = (e) => {
@@ -43,10 +71,11 @@ export default function ProductDetail() {
          id: Date.now(),
          rating,
          review,
+         date: new Date().toLocaleDateString("id-ID"),
       };
 
       // Menambahkan review baru ke daftar reviews
-      setReviews([...reviews, newReview]);
+      setReviews([newReview, ...reviews]);
 
       setRating(0);
       setReview("");

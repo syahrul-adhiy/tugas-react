@@ -2,16 +2,19 @@ import { useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProductCard from "../../components/ProductCard";
 import { CategoryContext } from "../../layouts/MainLayout";
-import { products } from "../../utils/data";
+import { useProducts } from "../../utils/ProductContext";
 
 export default function Dashboard() {
     const [searchParams] = useSearchParams();
     const query = searchParams.get("q")?.toLowerCase() || "";
     const { selectedCategory } = useContext(CategoryContext);
+    const { products } = useProducts();
 
     const filteredProducts = products.filter((product) => {
-        const matchesQuery = product.name.toLowerCase().includes(query);
-        const matchesCategory = selectedCategory === "Semua Kategori" || product.category_name === selectedCategory;
+        const matchesQuery = (product.name || "").toLowerCase().includes(query);
+        const matchesCategory =
+            selectedCategory === "Semua Kategori" ||
+            product.category_name?.toUpperCase() === selectedCategory.toUpperCase();
         return matchesQuery && matchesCategory;
     });
 

@@ -29,6 +29,12 @@ export default function Navbar() {
                 <Link to="/checkout" className="hover:text-gray-300">
                     Checkout
                 </Link>
+                <Link
+                    to="/admin/dashboard"
+                    className="text-xs font-semibold bg-gray-800 hover:bg-gray-700 text-gray-200 hover:text-white px-3 py-1.5 rounded-lg border border-gray-700 transition flex items-center gap-1.5"
+                >
+                    <span>⚙️</span> Admin
+                </Link>
             </div>
         </nav>
     );

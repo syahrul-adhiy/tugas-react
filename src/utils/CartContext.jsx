@@ -1,9 +1,32 @@
-import { createContext, useContext, useState } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useState, useEffect } from "react";
 
 const CartContext = createContext();
+const CART_STORAGE_KEY = "alungstore_cart";
 
 export function CartProvider({ children }) {
-   const [cart, setCart] = useState([]);
+   // State cart dengan inisialisasi dari localStorage
+   const [cart, setCart] = useState(() => {
+      try {
+         const saved = localStorage.getItem(CART_STORAGE_KEY);
+         if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) return parsed;
+         }
+      } catch (err) {
+         console.error("Gagal membaca cart dari localStorage:", err);
+      }
+      return [];
+   });
+
+   // Sinkronisasi data cart ke localStorage
+   useEffect(() => {
+      try {
+         localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+      } catch (err) {
+         console.error("Gagal menyimpan cart ke localStorage:", err);
+      }
+   }, [cart]);
 
    // Tambah ke cart (dengan qty opsional)
    const addToCart = (product, quantity = 1) => {

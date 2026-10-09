@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState } from "react";
 import { Outlet, useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
